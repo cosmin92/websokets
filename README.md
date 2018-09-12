@@ -1,10 +1,11 @@
 # Websockets
 
-Websoket server in PHP. Supporta anche connessioni SSL
+Server in PHP basato su Websocket.<br>
+Questo pacchetto implementa il protocollo Websocket secondo le specifiche [IETF RFC6455 ](https://tools.ietf.org/html/rfc6455)
 
 
 ## Modalità di utilizzo
-##### Vi sono tre modi per utilizzare il server
+###### Vi sono tre modi per utilizzare il server
 1. Estendere la classe *WebSocketServer*
 2. Implementare l'interfaccia *WebSocketConnection*
 3. Passare le callbacks direttamente alla classe *WebSocketServer*
@@ -19,7 +20,7 @@ Sia con i primi due modi che con l'ultimo, si andranno a sovrascivere i seguenti
 #### 1. Estendere la classe *WebSocketServer*
 La classe che estende la class *WebSocketServer* deve sovrascrivere i metodi *onConnect()*, *onDisconnect()*, *onMessage()*, *onTick()* e  *validateClient()*.
 ###### ESEMPIO: 
-``` php
+```php
 # file Server.php
 
 require "core/WebSocketServer.php";
@@ -64,7 +65,7 @@ class Server extends WebSocketServer
 }
 ```
 
-```
+```php
 # file start_server.php
 
 require "Server.php";
@@ -79,9 +80,9 @@ try {
 $server->run();
 ```
 #### 2. Implementare l'interfaccia *WebSocketConnection*
-Un oggetto della classe che implementa l'interfaccia *WebSocketConnection* deve essere passato come parametro nella classe *WebSocketServer*.
+Un oggetto della classe che implementa l'interfaccia *WebSocketConnection* deve essere passato come parametro nel costruttore della classe *WebSocketServer*.
 ###### ESEMPIO: 
-``` php
+```php
 # file Client.php
 
 require_once "core/WebSocketConnection.php";
@@ -121,7 +122,7 @@ class Client implements WebSocketConnection
         }
 }
 ```
-```
+```php
 # file start_server.php
 
 require "core/WebSocketServer.php";
@@ -137,7 +138,7 @@ $server->run();
 ```
 #### 3. Passare le callbacks direttamente alla classe *WebSocketServer*
 ###### ESEMPIO:
-```
+```php
 # file start_server.php
 
 require "core/WebSocketServer.php";
@@ -182,6 +183,29 @@ $server->validateClientCallback(function (Connection $conn, WebSocketServer $ser
 $server->run();
 ```
 ### La classe _Connection_
-Questa classe mantine tutte le informazioni su una connessione attiva:
+La classe _Connection_  mantiene tutte le informazioni su una connessione attiva.
+###### API:
+  - _&getSocket(): resource_ . Restituisce la socket relativa alla conessione corrente. 
+  - _getHeaders(): array_ . Restituisce un array con le informazioni sul client connesso.
+  - _getResource(): string_ . Restituisce una stringa; il path della risorsa richiesta dal Client
+  - _getID(): string_ . Restituisce una stringa; ID = md5(uniqueid() + mt_rand(1, 12345)).
+  - _getTimeStamp(): int_ . Restituisce sottoforma di intero il momento in cui il Client si è connesso.
+
+### La classe _WebSocketServer_
+La classe  _WebSocketServer_, sottoclasse della classe _WebSocket_, implementa il protocollo Websocket. Crea inoltre, una socket sulla quale accetta le connessioni che ripettano il protocollo Websocket.
+In aggiunta è possibile definire _host_, _port_, _scheme_, etc. nel file config.ini.
+###### API:
+ - _construct(WebSocketConnection $connection = null, OpenSSL $ssl = null)_ . Construttore: accetta come paremetri un oggetto di una classe che implementa l'interfaccia WebSocketConnection e un oggetto della classe OpenSSl per instaure connessioni sicure sul protocollo TLS. 
+ - _run(): void_ . Avvia il server.
+ - _getClients(): array_. Retituisce un array con gli oggetti della classe Connection(tutte le connessioni attive).  
+ - _getServer(): resource_. Restituisce la socket su qui il server è in ascolto.
+ - _log($message)_ . Scrive il messaggio, passato come parametro, nel file 'server.log'.   
+ - _validateClientCallback(callable $callback)_. Imposta una callback che verrà invocata quando un client si connette. Quando viene invocata la callback, gli vengono passati i seguaenti parametri: 1) un'stansa della classe Connection. 2) un'istanza del server corrente. La callback deve ritornare 'true' se al client viene dato il permesso di connettersi. Altrimenti 'false'.
+ - _onConnectCallback(callable $callback)_. Imposta una callback che verrà invocata quando un client si connette. Quando viene invocata la callback, gli vengono passati i seguaenti parametri: 1) un'stansa della classe Connection 2) un'istanza del server corrente.
+ - _onDisconnectCallback(callable $callback)_. Imposta una callback che verrà invocata quando un client si disconnette. Quando viene invocata la callback, gli vengono passati i seguaenti parametri: 1) un'stansa della classe Connection. 2) un'istanza del server corrente.
+ - _onMessageCallback(callable $callback)_. Imposta una callback che verrà invocata quando un client invia un messaggio. Quando viene invocata la callback, gli vengono passati i seguaenti parametri: 1) un'stansa della classe Connection. 2) il messaggio ricevuto. 3) un'istanza del server corrente.
+ - _onTickCallback(callable $callback)_ . Imposta una callback che verrà invocata periodicamente. Quando viene invocata la callback, gli vengono passati i seguaenti parametri: 1) un'istanza del server corrente. Se il metodo restituisce 'false' il server smetterà di accettare richieste.
+
+ - **_static function wakeUp($script_path)_**. Riceve come parametro il path dello script php che lancia il server. Se il server e offline essegue lo script.
 
 
