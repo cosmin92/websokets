@@ -191,6 +191,19 @@ La classe _Connection_  mantiene tutte le informazioni su una connessione attiva
   - _getID(): string_ . Restituisce una stringa; ID = md5(uniqueid() + mt_rand(1, 12345)).
   - _getTimeStamp(): int_ . Restituisce sottoforma di intero il momento in cui il Client si è connesso.
 
+Chiavi di accesso all'array headers:
+ - _host_
+ - _connection_
+ - _pragma_
+ - _cache control_
+ - _user-agent_
+ - _upgrade_
+ - _origin_
+ - _sec-websocket-version_
+ - _accept-encoding_
+ - _accept-language_
+ - _sec-websocket-key_
+ - _sec-websocket-extensions_
 ### La classe _WebSocketServer_
 La classe  _WebSocketServer_, sottoclasse della classe _WebSocket_, implementa il protocollo Websocket. Crea inoltre, una socket sulla quale accetta le connessioni che ripettano il protocollo Websocket.
 In aggiunta è possibile definire _host_, _port_, _scheme_, etc. nel file config.ini.
